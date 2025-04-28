@@ -1,16 +1,23 @@
 import json
 import csv
+import sys
+import glob
+import os
 
 
 def is_movie(x):
     return x['type'] == 'movie'
 
 
-def get_movie_list(file_path):
-    with open(file_path) as export_file:
-        parsed_json = json.load(export_file)
+def get_movie_list(files):
+    movie_list = []
 
-    return filter(is_movie, parsed_json)
+    for file in files:
+        with open(file) as export_file:
+            parsed_json = json.load(export_file)
+            movie_list += parsed_json
+
+    return filter(is_movie, movie_list)
 
 
 def create_export_list(movies):
@@ -43,10 +50,21 @@ def write_to_csv(movies, file_path):
         writer.writerows(movies)
 
 
-trakt_file_path = 'trakt.json'
+if len(sys.argv) != 2:
+    print("Wrong arguments")
+    exit(0)
+
+trakt_directory_path = sys.argv[1]
 csv_file_path = 'export.csv'
 
-movies = get_movie_list(trakt_file_path)
+history_files_pattern = os.path.join(trakt_directory_path, 'watched', 'history*.json')
+history_files = glob.glob(history_files_pattern)
+
+if len(history_files) == 0:
+    print("History files not found")
+    exit(0)
+
+movies = get_movie_list(history_files)
 movies = create_export_list(movies)
 write_to_csv(movies, csv_file_path)
 
