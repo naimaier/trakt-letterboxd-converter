@@ -27,6 +27,8 @@ def get_movie_list_ordered(files):
 def create_export_list(movies):
     export_list = []
 
+    watched = set()
+
     for movie in movies:
         obj = {}
         obj['tmdbID'] = movie['movie']['ids']['tmdb']
@@ -35,8 +37,9 @@ def create_export_list(movies):
         obj['Year'] = movie['movie']['year']
         #obj['Rating10']
         obj['WatchedDate'] = movie['watched_at'].split('T')[0]
-        #obj['Rewatch']
+        obj['Rewatch'] = obj['tmdbID'] in watched
         export_list.append(obj)
+        watched.add(obj['tmdbID'])
 
     return export_list
 
