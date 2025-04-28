@@ -47,7 +47,7 @@ def create_export_list(movies, ratings):
         obj = {}
         obj['tmdbID'] = movie['movie']['ids']['tmdb']
         obj['imdbID'] = movie['movie']['ids']['imdb']
-        obj['Title'] = movie['movie']['title']
+        obj['Title'] = movie['movie']['title'].replace('"', '\"')
         obj['Year'] = movie['movie']['year']
         obj['Rating10'] = ratings.get(obj['tmdbID'], '')
         obj['WatchedDate'] = movie['watched_at'].split('T')[0]
