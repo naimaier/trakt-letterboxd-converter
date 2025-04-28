@@ -9,6 +9,20 @@ def is_movie(x):
     return x['type'] == 'movie'
 
 
+def get_ratings(file):
+    ratings = {}
+
+    with open(file) as ratings_file:
+        parsed_json = json.load(ratings_file)
+
+    movie_list = list(filter(is_movie, parsed_json))
+
+    for movie in movie_list:
+        ratings[movie['movie']['ids']['tmdb']] = movie['rating']
+
+    return ratings
+
+
 def get_movie_list_ordered(files):
     movie_list = []
 
@@ -24,7 +38,7 @@ def get_movie_list_ordered(files):
     return movie_list
 
 
-def create_export_list(movies):
+def create_export_list(movies, ratings):
     export_list = []
 
     watched = set()
@@ -35,7 +49,7 @@ def create_export_list(movies):
         obj['imdbID'] = movie['movie']['ids']['imdb']
         obj['Title'] = movie['movie']['title']
         obj['Year'] = movie['movie']['year']
-        #obj['Rating10']
+        obj['Rating10'] = ratings.get(obj['tmdbID'], '')
         obj['WatchedDate'] = movie['watched_at'].split('T')[0]
         obj['Rewatch'] = obj['tmdbID'] in watched
         export_list.append(obj)
@@ -71,7 +85,10 @@ if len(history_files) == 0:
     print("History files not found")
     exit(0)
 
+ratings_file_path = os.path.join(trakt_directory_path, 'ratings', 'ratings-movies.json')
+ratings = get_ratings(ratings_file_path)
+
 movies = get_movie_list_ordered(history_files)
-movies = create_export_list(movies)
+movies = create_export_list(movies, ratings)
 write_to_csv(movies, csv_file_path)
 
