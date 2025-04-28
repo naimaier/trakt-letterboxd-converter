@@ -9,15 +9,19 @@ def is_movie(x):
     return x['type'] == 'movie'
 
 
-def get_movie_list(files):
+def get_movie_list_ordered(files):
     movie_list = []
 
+    files.sort()
     for file in files:
         with open(file) as export_file:
             parsed_json = json.load(export_file)
             movie_list += parsed_json
 
-    return filter(is_movie, movie_list)
+    movie_list = list(filter(is_movie, movie_list))
+    movie_list.reverse()
+
+    return movie_list
 
 
 def create_export_list(movies):
@@ -64,7 +68,7 @@ if len(history_files) == 0:
     print("History files not found")
     exit(0)
 
-movies = get_movie_list(history_files)
+movies = get_movie_list_ordered(history_files)
 movies = create_export_list(movies)
 write_to_csv(movies, csv_file_path)
 
